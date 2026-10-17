@@ -87,6 +87,10 @@ details p b{font-weight:500}
 .sci b{font-weight:500}
 .sci span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .foot{font-size:12px;color:var(--muted);text-align:center}
+.plain{background:var(--bg);border-radius:12px;padding:14px 16px}
+.plain h3{font:700 17px/1.3 var(--f-display);margin:0 0 4px}
+.plain p{margin:8px 0 0;font-size:15px;max-width:62ch}
+.plain p b{font-weight:500}
 @media (prefers-reduced-motion:reduce){.bar i,.key{transition:none}}
 </style>
 
@@ -136,6 +140,10 @@ details p b{font-weight:500}
       <div class="st"><small>Slowdown, into letters</small><b id="cL"></b></div>
     </div>
     <p class="note" id="asym"></p>
+    <div class="plain">
+      <h3>What this means, in plain English</h3>
+      <div id="plain"></div>
+    </div>
     <div class="row">
       <button class="btn" id="again">Play again</button>
     </div>
@@ -231,6 +239,18 @@ details p b{font-weight:500}
     if(S.round===3)results()}
 
   function mean(a){if(!a.length)return 0;var s=0;a.forEach(function(x){s+=x});return s/a.length}
+  function plain(t,sum,extra,pct,per,cN,cL){
+    var out=[],ms=Math.round(per*1000);
+    if(extra>0)out.push("<b>The short version.</b> Counting to 12 and spelling MULTITASKING took you "+sum.toFixed(1)+" seconds when you did them one after the other. Round 3 was the exact same 24 taps, just mixed together, and it took "+t[2].toFixed(1)+" seconds. The extra "+extra.toFixed(1)+" seconds is the price of switching back and forth and keeping your place in both. The taps didn't get harder. Only the mixing was new.");
+    else out.push("<b>The short version.</b> This time, mixing the two tasks didn't slow you down. Rounds 1 and 2 took "+sum.toFixed(1)+" seconds together, and round 3 took "+t[2].toFixed(1)+". That's unusual. Practice from the first two rounds can hide the cost, so try another run.");
+    out.push("<b>Reading the bars.</b> Both bars are the same work: 12 numbers and 12 letters. The gray bar is doing them separately. The orange bar is doing them mixed. "+(extra>0?"Your orange bar is "+pct+"% longer. That extra length is the cost of switching, plus tracking where you are in two sequences at once.":"Your bars came out about even this run."));
+    if(extra>0)out.push("<b>Cost per switch, about "+ms+" ms.</b> A millisecond (ms) is a thousandth of a second. Round 3 has 23 switches. Spread evenly, each one cost you about "+ms+" ms, or "+per.toFixed(2)+" seconds. That's too small to notice in the moment, which is why multitasking feels fine while it's slowing you down. You only see it when the stopwatch adds it up.");
+    out.push(S.intr>0?"<b>Wrong-sequence taps, "+S.intr+".</b> "+(S.intr===1?"Once,":S.intr+" times,")+" you tapped the next item from the other sequence, like tapping 4 when L was due. That's the task you just left still running in the background and pulling at you. Researchers call it task-set inertia.":"<b>Wrong-sequence taps, 0.</b> You never slipped into the other sequence this run. Most people do at least once, tapping the next number when a letter was due, because the task they just left is still pulling at them.");
+    var d=cN-cL;
+    out.push("<b>Back to numbers vs into letters.</b> Counting is a much stronger habit than spelling. To spell, your brain has to hold counting down. Switching back to counting means lifting that hold, which takes extra time. So research predicts that switching back to the stronger habit costs more. "+(Math.abs(d)<0.05?"This run, both directions cost you about the same.":(d>0?"Your results match: switching back to numbers slowed you more than switching into letters.":"Your results went the other way this run. It's a small effect, so it shows up more clearly over several runs.")));
+    out.push("<b>Why it matters.</b> This test uses two tasks that take almost no thought, and it still adds up. Real work, like answering a message in the middle of a report, takes much longer to switch back from. The fixes are simple: group similar work together, finish one thing before starting the next when you can, and when you must switch, jot down where you stopped so getting back in is faster.");
+    return out.map(function(x){return "<p>"+x+"</p>"}).join("");
+  }
   function results(){
     var t=S.times,sum=t[0]+t[1],extra=t[2]-sum,pct=Math.round(extra/sum*100),per=extra/23;
     var b1=mean(S.iv[0].slice(1)),b2=mean(S.iv[1].slice(1));
@@ -244,6 +264,7 @@ details p b{font-weight:500}
     $("asym").textContent=Math.abs(diff)<0.05?"Switching back to numbers and into letters cost about the same this run.":
       (diff>0?"Switching back to numbers cost more than switching into letters. That fits the research: the stronger habit gets pushed down harder, so coming back to it is slower.":
        "Switching into letters cost more than switching back to numbers this run. Research predicts the reverse on average, so see if it holds over several runs.");
+    $("plain").innerHTML=plain(t,sum,extra,pct,per,cN,cL);
     var mx=Math.max(sum,t[2]);$("results").hidden=false;
     requestAnimationFrame(function(){requestAnimationFrame(function(){$("barA").style.width=(sum/mx*100)+"%";$("barB").style.width=(t[2]/mx*100)+"%"})});
     save({d:Date.now(),s:sum,r:t[2],x:pct,w:S.intr});
