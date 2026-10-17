@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Multitask Myth</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A 60-second test of the hidden cost of switching between two simple tasks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow column, phone first. Stopwatch on top, sequence track, keypad, results below. */
+:root{
+  --bg:#EDF0F5; --panel:#FFFFFF; --ink:#141B2D; --muted:#5A6378; --line:#D5DAE4;
+  --num:#2F45C8; --num-bg:#E3E7FB; --let:#C2580E; --let-bg:#FBEBDD;
+  --bad:#C62D3A; --bad-bg:#FBE3E5; --good:#1C7A4E;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
+  --num:#9BABFF; --num-bg:#222B52; --let:#F2A35E; --let-bg:#3D2715;
+  --bad:#FF7F88; --bad-bg:#43191E; --good:#5FD39A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
+  --num:#9BABFF; --num-bg:#222B52; --let:#F2A35E; --let-bg:#3D2715;
+  --bad:#FF7F88; --bad-bg:#43191E; --good:#5FD39A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+h1{font:700 34px/1 var(--f-display);letter-spacing:-0.02em;margin:0}
+h1 .n{color:var(--num)} h1 .l{color:var(--let)}
+.tag{color:var(--muted);font-size:14px;margin:6px 0 0}
+.rounds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rd{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.rd.on{border-color:var(--ink)}
+.rd small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rd b{font:500 20px/1.3 var(--f-mono);font-variant-numeric:tabular-nums}
+.rd span{display:block;font-size:12px;color:var(--muted)}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.prompt{font-size:15px;min-width:0}
+.clock{font:500 30px/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.track{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
+.slot{height:26px;border-radius:5px;background:var(--bg);display:flex;align-items:center;justify-content:center;font:500 12px var(--f-mono);min-width:0}
+.slot.n{background:var(--num-bg);color:var(--num)} .slot.l{background:var(--let-bg);color:var(--let)}
+.msg{min-height:20px;font-size:13px;color:var(--bad)}
+.pad{display:grid;gap:6px}
+.pad.nums{grid-template-columns:repeat(6,minmax(0,1fr))}
+.pad.lets{grid-template-columns:repeat(5,minmax(0,1fr))}
+.key{height:52px;border:0;border-radius:10px;font:500 19px var(--f-mono);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .06s}
+.key:active{transform:scale(.95)}
+.nums .key{background:var(--num-bg);color:var(--num)} .lets .key{background:var(--let-bg);color:var(--let)}
+.key.bad{background:var(--bad-bg)!important;color:var(--bad)!important}
+.key:focus-visible,.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.btn{height:50px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:500 16px var(--f-body);cursor:pointer;width:100%}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px}
+.res{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+h2{font:700 22px/1.2 var(--f-display);margin:0;text-wrap:balance}
+.bar-l{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
+.bar-l b{font:500 13px var(--f-mono);color:var(--ink)}
+.bar{height:16px;border-radius:5px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:5px;width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.st{background:var(--bg);border-radius:10px;padding:10px 12px;min-width:0}
+.st small{display:block;font-size:12px;color:var(--muted)}
+.st b{font:500 20px var(--f-mono);font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--muted);margin:0}
+.hist{font:400 13px var(--f-mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.hist td,.hist th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right}
+.hist th{font:500 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hist td:first-child,.hist th:first-child{text-align:left}
+details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+summary{cursor:pointer;font:700 17px var(--f-display)}
+details p{font-size:15px;margin:10px 0 0;max-width:62ch}
+details p b{font-weight:500}
+.sci-h{font:700 16px/1.3 var(--f-display);margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.sci{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:10px;font-size:15px;max-width:62ch}
+.sci b{font-weight:500}
+.sci span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.foot{font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.bar i,.key{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="n">M</span>ultitask <span class="l">M</span>yth</h1>
+      <p class="tag">Count. Spell. Then do both at once.</p>
+    </div>
+  </header>
+
+  <div class="rounds">
+    <div class="rd" id="rd0"><small>Round 1</small><b id="t0">--.-</b><span id="e0">1 to 12</span></div>
+    <div class="rd" id="rd1"><small>Round 2</small><b id="t1">--.-</b><span id="e1">MULTITASKING</span></div>
+    <div class="rd" id="rd2"><small>Round 3</small><b id="t2">--.-</b><span id="e2">Both, alternating</span></div>
+  </div>
+
+  <section class="stage" aria-live="polite">
+    <div class="top">
+      <div class="prompt" id="prompt">Tap 1 through 12 in order</div>
+      <div class="clock" id="clock">0.0</div>
+    </div>
+    <div class="track" id="track"></div>
+    <div class="msg" id="msg"></div>
+    <div class="pad nums" id="nums"></div>
+    <div class="pad lets" id="lets"></div>
+    <div class="row">
+      <button class="btn" id="go">Start round 1</button>
+      <button class="btn ghost" id="restart" style="width:auto;padding:0 18px">Restart</button>
+    </div>
+  </section>
+
+  <section class="res" id="results" hidden>
+    <h2 id="verdict"></h2>
+    <div>
+      <div class="bar-l"><span>Rounds 1 + 2, done separately</span><b id="sumT"></b></div>
+      <div class="bar"><i id="barA" style="background:var(--muted)"></i></div>
+    </div>
+    <div>
+      <div class="bar-l"><span>Round 3, same 24 taps, switching</span><b id="r3T"></b></div>
+      <div class="bar"><i id="barB" style="background:var(--let)"></i></div>
+    </div>
+    <div class="stats">
+      <div class="st"><small>Cost per switch</small><b id="perSw"></b></div>
+      <div class="st"><small>Wrong-sequence taps</small><b id="intr"></b></div>
+      <div class="st"><small>Slowdown, back to numbers</small><b id="cN"></b></div>
+      <div class="st"><small>Slowdown, into letters</small><b id="cL"></b></div>
+    </div>
+    <p class="note" id="asym"></p>
+    <div class="row">
+      <button class="btn" id="again">Play again</button>
+    </div>
+    <div id="histWrap" hidden>
+      <table class="hist"><thead><tr><th>Run</th><th>1+2</th><th>3</th><th>Extra</th><th>Wrong</th></tr></thead><tbody id="hist"></tbody></table>
+      <p class="note" id="histAvg" style="margin-top:8px"></p>
+    </div>
+  </section>
+
+  <details>
+    <summary>Why round 3 is slower</summary>
+    <p><b>One rulebook at a time.</b> Each task runs on a mental rulebook. Counting is one, spelling is another. Your brain has to swap them on every tap, and each swap takes a fraction of a second.</p>
+    <p><b>The old rulebook lingers.</b> After you tap 3, the counting habit still pulls you toward 4, even when L is due. Researchers call this task-set inertia. It is where wrong-sequence taps come from.</p>
+    <p><b>You lose autopilot.</b> 1 to 12 runs on its own once started. Alternating breaks the chain, so you have to hold two bookmarks in memory and look each one up.</p>
+    <p><b>Where the myth has limits.</b> You can do two things at once when one runs on autopilot, like walking while talking. The myth is about two tasks that both need thought. Those you switch between.</p>
+    <p><b>Why you don't notice.</b> The cost comes in slices too small to feel. Only the stopwatch adds them up.</p>
+    <p><b>What this can't tell you.</b> Round 3 mixes the cost of switching with the cost of tracking two places at once. This test can't separate them. One run is noisy, so the history table is more reliable than any single result. Rounds 1 and 2 also give you practice, which makes round 3 look better than it would cold.</p>
+    <h3 class="sci-h">The science</h3>
+    <ul class="sci">
+      <li><b>Decisions go single file.</b> When two tasks each need a choice close together, the second one waits. This is called the response-selection bottleneck. <span>Pashler, 1994</span></li>
+      <li><b>Warning doesn't erase the cost.</b> Even when people knew a switch was coming and had time to prepare, some slowdown always remained. <span>Rogers and Monsell, 1995</span></li>
+      <li><b>The old task keeps running.</b> Preparation time barely shrank the cost, so the problem is partly the previous task interfering. This was named task-set inertia. <span>Allport, Styles and Hsieh, 1994</span></li>
+      <li><b>Going back to the easy task is harder.</b> In the Stroop test, switching from naming ink colors back to reading words was slower than the reverse. The strong habit had been pushed down, and the push lingers. <span>Allport, Styles and Hsieh, 1994</span></li>
+      <li><b>Bilinguals show the same thing.</b> Switching into their native language was slower than switching into their weaker second language. <span>Meuter and Allport, 1999</span></li>
+      <li><b>Returning to a task you just left costs extra.</b> Going A, B, back to A was slower than A, B, C. The brain had just suppressed A. This is called backward inhibition. <span>Mayr and Keele, 2000</span></li>
+      <li><b>The clinical version.</b> The Trail Making Test has people connect 1, 2, 3, then alternate 1, A, 2, B. The alternating part usually takes about twice as long, and doctors use the gap to check executive function.</li>
+      <li><b>People can't judge their own multitasking.</b> How good people thought they were had little to do with how they actually performed. The heaviest multitaskers tended to be worse at it. <span>Sanbonmatsu and colleagues, 2013</span></li>
+      <li><b>It follows you out of the task.</b> People who left a task unfinished did worse on the next one. Part of their attention stayed behind. Leroy called this attention residue. <span>Leroy, 2009</span></li>
+    </ul>
+    <h3 class="sci-h">Where the myth has limits</h3>
+    <ul class="sci">
+      <li><b>Two kinds of mental work.</b> Controlled tasks need attention and go through the single-file bottleneck. Automatic tasks run on their own once learned and mostly skip it. <span>Schneider and Shiffrin, 1977</span></li>
+      <li><b>Practice turns one into the other.</b> Walking, driving a familiar route, or typing all started as controlled tasks. With enough practice they became automatic, which is why you can talk while doing them.</li>
+      <li><b>Practice can shrink the cost to almost nothing.</b> After heavy practice, some people did two simple tasks at once with almost no slowdown. The tasks used different senses and responses: one seen and answered by hand, one heard and answered by voice. Researchers still debate whether the bottleneck disappeared or just got too brief to measure. <span>Schumacher and colleagues, 2001</span></li>
+      <li><b>A small group are true exceptions.</b> About 2.5% of people tested showed no drop at all while driving in a simulator and doing a hard memory task. The researchers called them supertaskers. Nearly everyone who thinks they are one is not. <span>Watson and Strayer, 2010</span></li>
+      <li><b>Autopilot breaks when a decision shows up.</b> Driving feels automatic until a car brakes ahead. Then it needs a decision, and that decision has to wait in line behind the conversation. Drivers on a phone reacted more slowly and missed more signals, and hands-free phones were no better. <span>Strayer and Johnston, 2001</span></li>
+      <li><b>You also stop seeing things.</b> In one study, most people walking across a campus square while on a phone did not notice a clown riding a unicycle past them. People walking with music or in pairs noticed far more often. <span>Hyman and colleagues, 2010</span></li>
+      <li><b>The rule of thumb.</b> One automatic task plus one thinking task works, until the automatic one needs a decision. Two thinking tasks means switching, every time.</li>
+    </ul>
+    <p><b>What's still debated.</b> Researchers agree switching has a real cost. They don't agree on how much comes from loading the new task versus the old one lingering. Most think both play a part, and the mix depends on the task.</p>
+  </details>
+
+  <p class="foot">Based on task-switching research: Allport et al. 1994, Rogers and Monsell 1995, and the clinical Trail Making Test.</p>
+</div>
+
+<script>
+(function(){
+  var NUMS=[],i;for(i=1;i<=12;i++)NUMS.push(String(i));
+  var WORD="MULTITASKING".split("");
+  var BOTH=[];for(i=0;i<12;i++){BOTH.push(NUMS[i]);BOTH.push(WORD[i]);}
+  var SEQ=[NUMS,WORD,BOTH];
+  var PROMPT=["Tap 1 through 12 in order","Spell MULTITASKING","Alternate: 1, M, 2, U, 3, L ... 12, G"];
+  var LETKEYS=["A","G","I","K","L","M","N","S","T","U"];
+  var S={round:0,pos:0,running:false,start:0,last:0,times:[null,null,null],errs:[0,0,0],intr:0,iv:[[],[],[]],tick:null};
+  function $(id){return document.getElementById(id)}
+  function isNum(k){return /^\d+$/.test(k)}
+
+  function keys(el,list){list.forEach(function(k){var b=document.createElement("button");b.className="key";b.textContent=k;b.setAttribute("aria-label",k);
+    b.addEventListener("pointerdown",function(e){e.preventDefault();tap(k,b)});
+    b.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tap(k,b)}});
+    el.appendChild(b)})}
+  keys($("nums"),NUMS);keys($("lets"),LETKEYS);
+
+  function drawTrack(){var t=$("track"),seq=SEQ[Math.min(S.round,2)];t.innerHTML="";
+    for(var j=0;j<seq.length;j++){var d=document.createElement("div");var done=j<S.pos;
+      d.className="slot"+(done?(isNum(seq[j])?" n":" l"):"");d.textContent=done?seq[j]:"";
+      if(seq.length===24){d.style.gridColumn=String((j>>1)+1);d.style.gridRow=String(j%2+1)}
+      t.appendChild(d)}}
+  function fmt(x){return x==null?"--.-":x.toFixed(1)}
+  function sgn(x){return (x>=0?"+":"−")+Math.abs(x).toFixed(2)+"s"}
+  function draw(){
+    for(var j=0;j<3;j++){$("t"+j).textContent=S.times[j]==null?"--.-":fmt(S.times[j])+"s";
+      $("rd"+j).className="rd"+(j===S.round&&S.round<3?" on":"");
+      if(S.times[j]!=null)$("e"+j).textContent=S.errs[j]+(S.errs[j]===1?" miss":" misses")}
+    $("prompt").textContent=S.round<3?PROMPT[S.round]:"All three rounds done";
+    $("go").textContent=S.round<3?(S.running?"Go":"Start round "+(S.round+1)):"Done";
+    $("go").disabled=S.running||S.round>2;
+    drawTrack()}
+
+  function tap(k,b){
+    if(S.round>2)return;
+    if(!S.running){$("msg").textContent="Press start first";return}
+    var seq=SEQ[S.round],want=seq[S.pos];
+    if(k===want){var now=performance.now();S.iv[S.round].push((now-S.last)/1000);S.last=now;S.pos++;drawTrack();
+      if(S.pos===seq.length)finish()}
+    else{S.errs[S.round]++;
+      if(S.round===2){var nextOther=isNum(want)?WORD[S.pos>>1]:NUMS[(S.pos+1)>>1];if(k===nextOther)S.intr++}
+      b.classList.add("bad");setTimeout(function(){b.classList.remove("bad")},200)}}
+
+  function finish(){
+    S.times[S.round]=(performance.now()-S.start)/1000;S.running=false;clearInterval(S.tick);
+    $("clock").textContent=fmt(S.times[S.round]);S.round++;S.pos=0;draw();
+    if(S.round===3)results()}
+
+  function mean(a){if(!a.length)return 0;var s=0;a.forEach(function(x){s+=x});return s/a.length}
+  function results(){
+    var t=S.times,sum=t[0]+t[1],extra=t[2]-sum,pct=Math.round(extra/sum*100),per=extra/23;
+    var b1=mean(S.iv[0].slice(1)),b2=mean(S.iv[1].slice(1));
+    var toN=[],toL=[];S.iv[2].forEach(function(x,j){if(j===0)return;(j%2===0?toN:toL).push(x)});
+    var cN=mean(toN)-b1,cL=mean(toL)-b2;
+    $("verdict").textContent=extra>0?("Switching cost you "+extra.toFixed(1)+" seconds, "+pct+"% more time for the same 24 taps."):("No switching cost this run. Round 3 was "+Math.abs(extra).toFixed(1)+"s faster. Try again, one run is noisy.");
+    $("sumT").textContent=fmt(sum)+"s";$("r3T").textContent=fmt(t[2])+"s";
+    $("perSw").textContent=sgn(per);$("intr").textContent=String(S.intr);
+    $("cN").textContent=sgn(cN)+"/tap";$("cL").textContent=sgn(cL)+"/tap";
+    var diff=cN-cL;
+    $("asym").textContent=Math.abs(diff)<0.05?"Switching back to numbers and into letters cost about the same this run.":
+      (diff>0?"Switching back to numbers cost more than switching into letters. That fits the research: the stronger habit gets pushed down harder, so coming back to it is slower.":
+       "Switching into letters cost more than switching back to numbers this run. Research predicts the reverse on average, so see if it holds over several runs.");
+    var mx=Math.max(sum,t[2]);$("results").hidden=false;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){$("barA").style.width=(sum/mx*100)+"%";$("barB").style.width=(t[2]/mx*100)+"%"})});
+    save({d:Date.now(),s:sum,r:t[2],x:pct,w:S.intr});
+    $("results").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+
+  function load(){try{return JSON.parse(localStorage.getItem("switchcost.runs")||"[]")}catch(e){return []}}
+  function save(r){var a=load();a.unshift(r);a=a.slice(0,20);try{localStorage.setItem("switchcost.runs",JSON.stringify(a))}catch(e){}hist(a)}
+  function hist(a){if(!a.length){$("histWrap").hidden=true;return}$("histWrap").hidden=false;
+    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d);
+      return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+"</td><td>"+r.s.toFixed(1)+"</td><td>"+r.r.toFixed(1)+"</td><td>"+(r.x>0?"+":"")+r.x+"%</td><td>"+r.w+"</td></tr>"}).join("");
+    var avg=Math.round(mean(a.map(function(r){return r.x})));
+    $("histAvg").textContent=a.length>1?("Average extra time across your last "+a.length+" runs: "+(avg>0?"+":"")+avg+"%."):"Play a few more runs to see your average."}
+
+  function reset(){clearInterval(S.tick);S={round:0,pos:0,running:false,start:0,last:0,times:[null,null,null],errs:[0,0,0],intr:0,iv:[[],[],[]],tick:null};
+    $("clock").textContent="0.0";$("msg").textContent="";$("results").hidden=true;$("barA").style.width="0";$("barB").style.width="0";
+    for(var j=0;j<3;j++)$("e"+j).textContent=["1 to 12","MULTITASKING","Both, alternating"][j];draw()}
+
+  $("go").addEventListener("click",function(){if(S.running||S.round>2)return;$("msg").textContent="";S.pos=0;S.running=true;
+    S.start=S.last=performance.now();S.tick=setInterval(function(){$("clock").textContent=fmt((performance.now()-S.start)/1000)},100);draw()});
+  $("restart").addEventListener("click",reset);
+  $("again").addEventListener("click",function(){reset();window.scrollTo({top:0})});
+  hist(load());draw();
+})();
+</script>
+
+</body>
+</html>
