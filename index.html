@@ -8,12 +8,12 @@
 <body>
 <title>Multitask Myth</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="A 60-second test of the hidden cost of switching between two simple tasks.">
+<meta name="description" content="A one-minute test of the hidden cost of switching between two simple tasks.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: one narrow column, phone first. Stopwatch on top, sequence track, keypad, results below. */
+/* Layout: one narrow column, phone first. Header, round cards, play panel with keypad, then the score status card, results, and science. */
 :root{
   --bg:#EDF0F5; --panel:#FFFFFF; --ink:#141B2D; --muted:#5A6378; --line:#D5DAE4;
   --num:#2F45C8; --num-bg:#E3E7FB; --let:#C2580E; --let-bg:#FBEBDD;
@@ -34,10 +34,12 @@
 body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 h1{font:700 34px/1 var(--f-display);letter-spacing:-0.02em;margin:0}
 h1 .n{color:var(--num)} h1 .l{color:var(--let)}
 .tag{color:var(--muted);font-size:14px;margin:6px 0 0}
+.dur{font:500 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
+.back{font-size:13px;color:var(--muted);text-decoration:none}
+.back:hover{text-decoration:underline}
 .rounds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .rd{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
 .rd.on{border-color:var(--ink)}
@@ -61,8 +63,7 @@ h1 .n{color:var(--num)} h1 .l{color:var(--let)}
 .key.bad{background:var(--bad-bg)!important;color:var(--bad)!important}
 .key:focus-visible,.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .btn{height:50px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:500 16px var(--f-body);cursor:pointer;width:100%}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.row{display:flex;gap:8px}
+.btn:disabled{opacity:.45;cursor:default}
 .res{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
 h2{font:700 22px/1.2 var(--f-display);margin:0;text-wrap:balance}
 .bar-l{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
@@ -73,39 +74,74 @@ h2{font:700 22px/1.2 var(--f-display);margin:0;text-wrap:balance}
 .st{background:var(--bg);border-radius:10px;padding:10px 12px;min-width:0}
 .st small{display:block;font-size:12px;color:var(--muted)}
 .st b{font:500 20px var(--f-mono);font-variant-numeric:tabular-nums}
+.st span{display:block;font-size:12px;color:var(--muted)}
 .note{font-size:14px;color:var(--muted);margin:0}
-.hist{font:400 13px var(--f-mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
-.hist td,.hist th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right}
-.hist th{font:500 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.hist td:first-child,.hist th:first-child{text-align:left}
-details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-summary{cursor:pointer;font:700 17px var(--f-display)}
-details p{font-size:15px;margin:10px 0 0;max-width:62ch}
-details p b{font-weight:500}
-.sci-h{font:700 16px/1.3 var(--f-display);margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
-.sci{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:10px;font-size:15px;max-width:62ch}
-.sci b{font-weight:500}
-.sci span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-.foot{font-size:12px;color:var(--muted);text-align:center}
-.dur{font:500 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
-.back{font-size:13px;color:var(--muted);text-decoration:none}
-.back:hover{text-decoration:underline}
 .plain{background:var(--bg);border-radius:12px;padding:14px 16px}
 .plain h3{font:700 17px/1.3 var(--f-display);margin:0 0 4px}
 .plain p{margin:8px 0 0;font-size:15px;max-width:62ch}
 .plain p b{font-weight:500}
+.hist{font:400 13px var(--f-mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.hist td,.hist th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right}
+.hist th{font:500 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hist td:first-child,.hist th:first-child{text-align:left}
+.hist .old{color:var(--muted)}
+details.sci-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+details.sci-box>summary{cursor:pointer;font:700 17px var(--f-display)}
+details.sci-box p{font-size:15px;margin:10px 0 0;max-width:62ch}
+details.sci-box p b{font-weight:500}
+.sci-h{font:700 16px/1.3 var(--f-display);margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.foot{font-size:12px;color:var(--muted);text-align:center}
 @media (prefers-reduced-motion:reduce){.bar i,.key{transition:none}}
+.ml-quitbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:40px}
+.ml-quit{position:relative;overflow:hidden;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 13px var(--f-body);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.ml-quit i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--bad-bg,var(--line));z-index:0}
+.ml-quit span{position:relative;z-index:1}
+.ml-quit.holding{color:var(--bad,var(--ink));border-color:var(--bad,var(--ink))}
+.ml-quit-hint{font-size:12px;color:var(--muted)}
+.ml-status{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ml-status h2{font:700 20px/1.2 var(--f-display);margin:0;text-wrap:balance}
+.ml-status p{margin:0;font-size:15px;max-width:62ch}
+.ml-status p b{font-weight:500}
+.ml-pill{display:inline-block;font:500 12px var(--f-body);padding:2px 10px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.ml-pill.ok{color:var(--good,var(--ink));border-color:currentColor}
+.ml-meter{height:6px;border-radius:3px;background:var(--bg);overflow:hidden}
+.ml-meter i{display:block;height:100%;background:var(--ink);border-radius:3px}
+.ml-trend{width:100%;height:auto;display:block}
+.ml-trend text{font:400 11px var(--f-body);fill:var(--muted)}
+.ml-link{background:none;border:0;padding:4px 0;color:var(--muted);font:400 13px var(--f-body);text-decoration:underline;cursor:pointer;align-self:flex-start}
+.ml-confirm{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.ml-confirm-row{display:flex;gap:8px}
+.ml-btn{height:42px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 14px var(--f-body);cursor:pointer}
+.ml-btn.danger{background:var(--bad,#C62D3A);border-color:var(--bad,#C62D3A);color:var(--panel)}
+.ml-btn:focus-visible,.ml-link:focus-visible,.ml-quit:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ml-src{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.ml-src li{overflow-wrap:anywhere}
+.ml-src .n{font-family:var(--f-mono);color:var(--ink)}
+.ml-src a{color:inherit}
+sup.c{font-size:11px;line-height:0}
+sup.c a{color:var(--muted);text-decoration:none}
+.howto{background:transparent!important;border:0!important;padding:0!important}
+.howto summary{font:500 14px var(--f-body)!important;color:var(--muted)}
+.howto p{font-size:14px!important;margin:8px 0 0!important}
+.rule{margin:0;font-size:16px}
+.rule b{font-weight:500}
+
 </style>
 
 <div class="wrap">
   <a class="back" href="https://slowriver87.github.io/mindlabfun/">&larr; All Mind Lab games</a>
   <header>
-    <div>
-      <h1><span class="n">M</span>ultitask <span class="l">M</span>yth</h1>
-      <p class="tag">Count. Spell. Then do both at once.</p>
-      <p class="dur">About 1 minute</p>
-    </div>
+    <h1><span class="n">M</span>ultitask <span class="l">M</span>yth</h1>
+    <p class="tag">Count. Spell. Then do both at once.</p>
+    <p class="dur">About 1 minute</p>
   </header>
+
+  <p class="rule"><b>Tap 1 to 12, then spell MULTITASKING, then alternate the two.</b></p>
+  <details class="howto"><summary>How to play</summary>
+    <p>Round 1: tap the numbers 1 to 12 in order. Round 2: spell MULTITASKING on the letter keys. Round 3: alternate them, 1, M, 2, U, 3, L, all the way to 12, G.</p>
+    <p>Go as fast as you can. Wrong keys flash red and you try again. Round 3 is the same 24 taps as rounds 1 and 2 combined, so any extra time per tap comes from switching.</p>
+    <p>To stop partway, hold the Quit button for one second. On a computer, press Esc twice.</p>
+  </details>
 
   <div class="rounds">
     <div class="rd" id="rd0"><small>Round 1</small><b id="t0">--.-</b><span id="e0">1 to 12</span></div>
@@ -114,6 +150,7 @@ details p b{font-weight:500}
   </div>
 
   <section class="stage" aria-live="polite">
+    <div class="ml-quitbar" id="quitbar" hidden><span class="ml-quit-hint"></span><button class="ml-quit" id="quit" type="button"><i></i><span>Hold to quit</span></button></div>
     <div class="top">
       <div class="prompt" id="prompt">Tap 1 through 12 in order</div>
       <div class="clock" id="clock">0.0</div>
@@ -122,95 +159,185 @@ details p b{font-weight:500}
     <div class="msg" id="msg"></div>
     <div class="pad nums" id="nums"></div>
     <div class="pad lets" id="lets"></div>
-    <div class="row">
-      <button class="btn" id="go">Start round 1</button>
-      <button class="btn ghost" id="restart" style="width:auto;padding:0 18px">Restart</button>
-    </div>
+    <button class="btn" id="go">Start round 1</button>
   </section>
+
+  <section class="ml-status" id="status"></section>
 
   <section class="res" id="results" hidden>
     <h2 id="verdict"></h2>
     <div>
-      <div class="bar-l"><span>Rounds 1 + 2, done separately</span><b id="sumT"></b></div>
+      <div class="bar-l"><span>Average time per tap, tasks done separately</span><b id="sepT"></b></div>
       <div class="bar"><i id="barA" style="background:var(--muted)"></i></div>
     </div>
     <div>
-      <div class="bar-l"><span>Round 3, same 24 taps, switching</span><b id="r3T"></b></div>
+      <div class="bar-l"><span>Average time per tap, tasks mixed</span><b id="mixT"></b></div>
       <div class="bar"><i id="barB" style="background:var(--let)"></i></div>
     </div>
     <div class="stats">
-      <div class="st"><small>Cost per switch</small><b id="perSw"></b></div>
-      <div class="st"><small>Wrong-sequence taps</small><b id="intr"></b></div>
-      <div class="st"><small>Slowdown, back to numbers</small><b id="cN"></b></div>
-      <div class="st"><small>Slowdown, into letters</small><b id="cL"></b></div>
+      <div class="st"><small>Switching cost</small><b id="cost"></b><span>How much slower each tap was when mixed</span></div>
+      <div class="st"><small>Extra time per tap</small><b id="perTap"></b><span>In milliseconds (thousandths of a second)</span></div>
+      <div class="st"><small>Wrong-sequence taps</small><b id="intr"></b><span>Tapping the other sequence's next item</span></div>
+      <div class="st"><small>Toward your settled score</small><b id="prog"></b><span id="progSub"></span></div>
     </div>
-    <p class="note" id="asym"></p>
     <div class="plain">
       <h3>What this means, in plain English</h3>
       <div id="plain"></div>
     </div>
-    <div class="row">
-      <button class="btn" id="again">Play again</button>
-    </div>
+    <button class="btn" id="again">Play again</button>
     <div id="histWrap" hidden>
-      <table class="hist"><thead><tr><th>Run</th><th>1+2</th><th>3</th><th>Extra</th><th>Wrong</th></tr></thead><tbody id="hist"></tbody></table>
-      <p class="note" id="histAvg" style="margin-top:8px"></p>
+      <table class="hist"><thead><tr><th>Run</th><th>Separate</th><th>Mixed</th><th>Cost</th><th>Wrong</th></tr></thead><tbody id="hist"></tbody></table>
+      <p class="note" id="histNote" style="margin-top:8px"></p>
     </div>
   </section>
 
-  <details>
-    <summary>Why round 3 is slower</summary>
-    <p><b>One rulebook at a time.</b> Each task runs on a mental rulebook. Counting is one, spelling is another. Your brain has to swap them on every tap, and each swap takes a fraction of a second.</p>
-    <p><b>The old rulebook lingers.</b> After you tap 3, the counting habit still pulls you toward 4, even when L is due. Researchers call this task-set inertia. It is where wrong-sequence taps come from.</p>
-    <p><b>You lose autopilot.</b> 1 to 12 runs on its own once started. Alternating breaks the chain, so you have to hold two bookmarks in memory and look each one up.</p>
-    <p><b>Where the myth has limits.</b> You can do two things at once when one runs on autopilot, like walking while talking. The myth is about two tasks that both need thought. Those you switch between.</p>
-    <p><b>Why you don't notice.</b> The cost comes in slices too small to feel. Only the stopwatch adds them up.</p>
-    <p><b>What this can't tell you.</b> Round 3 mixes the cost of switching with the cost of tracking two places at once. This test can't separate them. One run is noisy, so the history table is more reliable than any single result. Rounds 1 and 2 also give you practice, which makes round 3 look better than it would cold.</p>
-    <h3 class="sci-h">The science</h3>
-    <ul class="sci">
-      <li><b>Decisions go single file.</b> When two tasks each need a choice close together, the second one waits. This is called the response-selection bottleneck. <span>Pashler, 1994</span></li>
-      <li><b>Warning doesn't erase the cost.</b> Even when people knew a switch was coming and had time to prepare, some slowdown always remained. <span>Rogers and Monsell, 1995</span></li>
-      <li><b>The old task keeps running.</b> Preparation time barely shrank the cost, so the problem is partly the previous task interfering. This was named task-set inertia. <span>Allport, Styles and Hsieh, 1994</span></li>
-      <li><b>Going back to the easy task is harder.</b> In the Stroop test, switching from naming ink colors back to reading words was slower than the reverse. The strong habit had been pushed down, and the push lingers. <span>Allport, Styles and Hsieh, 1994</span></li>
-      <li><b>Bilinguals show the same thing.</b> Switching into their native language was slower than switching into their weaker second language. <span>Meuter and Allport, 1999</span></li>
-      <li><b>Returning to a task you just left costs extra.</b> Going A, B, back to A was slower than A, B, C. The brain had just suppressed A. This is called backward inhibition. <span>Mayr and Keele, 2000</span></li>
-      <li><b>The clinical version.</b> The Trail Making Test has people connect 1, 2, 3, then alternate 1, A, 2, B. The alternating part usually takes about twice as long, and doctors use the gap to check executive function.</li>
-      <li><b>People can't judge their own multitasking.</b> How good people thought they were had little to do with how they actually performed. The heaviest multitaskers tended to be worse at it. <span>Sanbonmatsu and colleagues, 2013</span></li>
-      <li><b>It follows you out of the task.</b> People who left a task unfinished did worse on the next one. Part of their attention stayed behind. Leroy called this attention residue. <span>Leroy, 2009</span></li>
-    </ul>
-    <h3 class="sci-h">Where the myth has limits</h3>
-    <ul class="sci">
-      <li><b>Two kinds of mental work.</b> Controlled tasks need attention and go through the single-file bottleneck. Automatic tasks run on their own once learned and mostly skip it. <span>Schneider and Shiffrin, 1977</span></li>
-      <li><b>Practice turns one into the other.</b> Walking, driving a familiar route, or typing all started as controlled tasks. With enough practice they became automatic, which is why you can talk while doing them.</li>
-      <li><b>Practice can shrink the cost to almost nothing.</b> After heavy practice, some people did two simple tasks at once with almost no slowdown. The tasks used different senses and responses: one seen and answered by hand, one heard and answered by voice. Researchers still debate whether the bottleneck disappeared or just got too brief to measure. <span>Schumacher and colleagues, 2001</span></li>
-      <li><b>A small group are true exceptions.</b> About 2.5% of people tested showed no drop at all while driving in a simulator and doing a hard memory task. The researchers called them supertaskers. Nearly everyone who thinks they are one is not. <span>Watson and Strayer, 2010</span></li>
-      <li><b>Autopilot breaks when a decision shows up.</b> Driving feels automatic until a car brakes ahead. Then it needs a decision, and that decision has to wait in line behind the conversation. Drivers on a phone reacted more slowly and missed more signals, and hands-free phones were no better. <span>Strayer and Johnston, 2001</span></li>
-      <li><b>You also stop seeing things.</b> In one study, most people walking across a campus square while on a phone did not notice a clown riding a unicycle past them. People walking with music or in pairs noticed far more often. <span>Hyman and colleagues, 2010</span></li>
-      <li><b>The rule of thumb.</b> One automatic task plus one thinking task works, until the automatic one needs a decision. Two thinking tasks means switching, every time.</li>
-    </ul>
-    <p><b>What's still debated.</b> Researchers agree switching has a real cost. They don't agree on how much comes from loading the new task versus the old one lingering. Most think both play a part, and the mix depends on the task.</p>
+  <details class="sci-box">
+    <summary>The science behind this game</summary>
+    <h3 class="sci-h" style="border:0;padding-top:0">What it measures</h3>
+    <p>This game measures how much slower you get when you have to keep switching between two simple tasks. Rounds 1 and 2 give your speed on each task alone. Round 3 makes you switch on every tap. The score is how much longer each tap takes in round 3, as a percentage of your speed in rounds 1 and 2.</p>
+    <p><b>How this compares to the lab.</b> Researchers separate two costs <sup class="c"><a href="#src3">[3]</a></sup>. A "mixing cost" compares a block where tasks are mixed with blocks of one task alone. A "switch cost" compares switch trials with repeat trials inside a mixed block. Round 3 switches on every tap, so this game measures both together. It can't split them. The scoring leaves out the first tap of each round, because that tap includes moving your thumb from the Start button.</p>
+
+    <h3 class="sci-h">What the research says</h3>
+    <p><b>Switching slows you down.</b> People respond more slowly, and usually make more errors, right after a task switch <sup class="c"><a href="#src2">[2]</a></sup>.</p>
+    <p><b>Preparing helps, but not fully.</b> When people had more time to prepare for a known switch, the cost shrank. But even with 1.2 seconds to prepare, a large cost remained <sup class="c"><a href="#src1">[1]</a></sup>.</p>
+    <p><b>The old task lingers.</b> In a 1994 study by Allport and colleagues, switching back to reading words after naming ink colors cost more than the reverse. They called the leftover pull of the old task "task-set inertia." A later review describes these findings <sup class="c"><a href="#src3">[3]</a></sup>.</p>
+    <p><b>Going back to a task you just left is extra slow.</b> People were slower to return to a task they had recently abandoned <sup class="c"><a href="#src4">[4]</a></sup>.</p>
+    <p><b>Bilinguals show it too.</b> Switching into a person's stronger first language cost more than switching into their weaker second language <sup class="c"><a href="#src5">[5]</a></sup>. This game checks the same idea: counting is a stronger habit than spelling.</p>
+    <p><b>People can't judge their own multitasking.</b> How good people thought they were at multitasking had no significant link to how good they actually were. People who multitasked more with media, or used a phone while driving, tended to score worse on a real multitasking test <sup class="c"><a href="#src6">[6]</a></sup>.</p>
+    <p><b>It follows you to the next task.</b> When people moved on from an unfinished task, part of their attention stayed behind, and their next task suffered <sup class="c"><a href="#src7">[7]</a></sup>.</p>
+    <p><b>Doctors use a version of this.</b> The clinical Trail Making Test has a simple part and an alternating part. Switching costs measured in the lab were linked to the alternating part, especially to the ratio of the two parts <sup class="c"><a href="#src8">[8]</a></sup>.</p>
+
+    <h3 class="sci-h" id="limitsH">Where the myth has limits</h3>
+    <div id="limits"></div>
+
+    <h3 class="sci-h">Adult norms</h3>
+    <p>No published adult norm exists for this exact game. The closest clinical test, the Trail Making Test, is done with pen and paper and scored as a ratio of two completion times. In one study, switching costs were especially large in people whose alternating part took more than 3 times as long as the simple part <sup class="c"><a href="#src8">[8]</a></sup>. Those numbers don't transfer to tapping a keypad, so this game doesn't compare you to a norm.</p>
+
+    <h3 class="sci-h">What's still debated</h3>
+    <p>Researchers agree that switching has a real cost. They still debate how much of it comes from setting up the new task and how much comes from the old task interfering <sup class="c"><a href="#src3">[3]</a></sup>.</p>
+
+    <h3 class="sci-h">Limits of this game</h3>
+    <p><b>One round is noisy.</b> In our simulation of 4,000 rounds by players with a known switching cost, a single round landed within about <span class="luck"></span> points of the true value 95% of the time. Pooling 10 rounds narrows that to about ±15 points. That's why your settled score waits for 10 rounds.</p>
+    <p><b>Practice helps round 3.</b> Rounds 1 and 2 warm you up on both sequences, which makes round 3 a little easier than it would be cold. So the score may read slightly low.</p>
+    <p><b>Phones add noise.</b> Touch screens add a little timing delay, and the letter keys take longer to find than the number keys.</p>
+    <p><b>The simulation is a model.</b> The noise levels in it are our assumptions about typical tapping, not measured data. Your own consistency, shown once you settle, is the better guide for you.</p>
+
+    <h3 class="sci-h">Sources</h3>
+    <ol class="ml-src" id="sources"></ol>
   </details>
 
-  <p class="foot">Based on task-switching research: Allport et al. 1994, Rogers and Monsell 1995, and the clinical Trail Making Test.</p>
+  <p class="foot">Scores are saved on this device only. Nothing is sent anywhere.</p>
 </div>
 
 <script>
+var ML=(function(){
+  function load(k){try{var a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a:[]}catch(e){return []}}
+  function get(k){try{var v=localStorage.getItem(k);return v==null?null:JSON.parse(v)}catch(e){return null}}
+  function put(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+  function del(k){try{localStorage.removeItem(k)}catch(e){}}
+  function mean(a){if(!a.length)return null;var s=0;a.forEach(function(x){s+=x});return s/a.length}
+  function sd(a){if(a.length<2)return null;var m=mean(a),s=0;a.forEach(function(x){s+=(x-m)*(x-m)});return Math.sqrt(s/(a.length-1))}
+  /* runs are stored newest first. settle() returns a chronological view of the valid rounds. */
+  function settle(runs,N,val,ok){
+    var v=runs.slice().reverse().filter(function(r){return (!ok||ok(r))&&typeof val(r)==="number"&&isFinite(val(r))}).map(val);
+    var n=v.length,o={n:n,N:N,vals:v,need:Math.max(0,N-n),avg:mean(v),latest:n?v[n-1]:null};
+    if(n>=N){var last=v.slice(-N);o.settled=mean(last);o.spread=sd(last);
+      if(n>=2*N){o.firstN=mean(v.slice(0,N));o.latestN=mean(last)}}
+    return o}
+  function plural(n,w){return n+" "+w+(n===1?"":"s")}
+  /* Hold to quit: about 1 second press with a fill bar. Esc twice on a computer. */
+  function holdToQuit(btn,onQuit){
+    var t=null,fill=btn.querySelector("i"),escAt=0,hint=btn.parentNode.querySelector(".ml-quit-hint");
+    function cancel(){if(t){clearTimeout(t);t=null}btn.classList.remove("holding");if(fill)fill.style.transition="none",fill.style.width="0"}
+    function start(e){e.preventDefault();cancel();btn.classList.add("holding");
+      if(fill){void fill.offsetWidth;fill.style.transition="width 1s linear";fill.style.width="100%"}
+      t=setTimeout(function(){t=null;cancel();onQuit()},1000)}
+    btn.addEventListener("pointerdown",start);
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){btn.addEventListener(ev,cancel)});
+    btn.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")e.preventDefault()});
+    document.addEventListener("keydown",function(e){
+      if(e.key!=="Escape"||btn.closest("[hidden]")||btn.hidden)return;
+      var now=Date.now();
+      if(now-escAt<1500){escAt=0;if(hint)hint.textContent="";onQuit()}
+      else{escAt=now;if(hint){hint.textContent="Press Esc again to quit";setTimeout(function(){if(Date.now()-escAt>=1400)hint.textContent=""},1500)}}})}
+  /* Reset link with an on-page Cancel / Erase confirmation. Only removes the keys given. */
+  function resetLink(wrap,keys,label,onDone){
+    function idle(){wrap.innerHTML='<button class="ml-link" type="button">'+label+'</button>';
+      wrap.firstChild.addEventListener("click",ask)}
+    function ask(){wrap.innerHTML='<div class="ml-confirm"><span>Erase all saved scores for this game on this device? This can\'t be undone.</span><div class="ml-confirm-row"><button class="ml-btn ghost" type="button">Cancel</button><button class="ml-btn danger" type="button">Erase</button></div></div>';
+      var b=wrap.querySelectorAll("button");b[0].addEventListener("click",idle);
+      b[1].addEventListener("click",function(){keys.forEach(del);idle();if(onDone)onDone()})}
+    idle()}
+  function saveSummary(id,o){o.d=Date.now();put("mindlab.summary."+id,o)}
+  function sources(el,list){el.innerHTML=list.map(function(s,i){
+    return '<li id="src'+(i+1)+'"><span class="n">['+(i+1)+']</span> '+s.c+(s.doi?' <a href="https://doi.org/'+s.doi+'" target="_blank" rel="noopener">https://doi.org/'+s.doi+'</a>':'')+'</li>'}).join("")}
+  /* Small trend chart of round scores with the settled band. */
+  function trend(svg,vals,N,fmt,color){
+    var W=480,H=150,L=44,R=12,T=12,B=26;if(!vals.length){svg.innerHTML="";return}
+    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);var pad=(hi-lo)*0.15||Math.abs(hi)*0.1||1;lo-=pad;hi+=pad;
+    function X(i){return vals.length===1?(L+W-R)/2:L+i/(vals.length-1)*(W-L-R)}
+    function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B)}
+    var g="",ticks=[lo,(lo+hi)/2,hi];
+    ticks.forEach(function(v){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+fmt(v)+'</text>'});
+    if(vals.length>=N){var x0=X(vals.length-N),x1=X(vals.length-1);g+='<rect x="'+(x0-6)+'" y="'+T+'" width="'+(x1-x0+12)+'" height="'+(H-T-B)+'" fill="var(--line)" opacity=".45" rx="6"/>';
+      var m=mean(vals.slice(-N));g+='<line x1="'+(x0-6)+'" x2="'+(x1+6)+'" y1="'+Y(m)+'" y2="'+Y(m)+'" stroke="'+color+'" stroke-width="2" stroke-dasharray="5 4"/>'}
+    g+='<polyline points="'+vals.map(function(v,i){return X(i)+","+Y(v)}).join(" ")+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>';
+    vals.forEach(function(v,i){g+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="'+color+'"/>'});
+    g+='<text x="'+L+'" y="'+(H-6)+'">first round</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end">latest</text>';
+    svg.innerHTML=g}
+  return {load:load,get:get,put:put,del:del,mean:mean,sd:sd,settle:settle,plural:plural,holdToQuit:holdToQuit,resetLink:resetLink,saveSummary:saveSummary,sources:sources,trend:trend}
+})();
+
 (function(){
+  var KEY="switchcost.runs",SUMKEY="mindlab.summary.mm",N=10,LUCK=43,MARGIN=15,ROUND_SD=22,KEEP=200;
+  var SOURCES=[
+    {c:"Rogers, R. D., &amp; Monsell, S. (1995). Costs of a predictable switch between simple cognitive tasks. <i>Journal of Experimental Psychology: General, 124</i>(2), 207&ndash;231.",doi:"10.1037/0096-3445.124.2.207"},
+    {c:"Monsell, S. (2003). Task switching. <i>Trends in Cognitive Sciences, 7</i>(3), 134&ndash;140.",doi:"10.1016/S1364-6613(03)00028-7"},
+    {c:"Kiesel, A., Steinhauser, M., Wendt, M., Falkenstein, M., Jost, K., Philipp, A. M., &amp; Koch, I. (2010). Control and interference in task switching: A review. <i>Psychological Bulletin, 136</i>(5), 849&ndash;874.",doi:"10.1037/a0019842"},
+    {c:"Mayr, U., &amp; Keele, S. W. (2000). Changing internal constraints on action: The role of backward inhibition. <i>Journal of Experimental Psychology: General, 129</i>(1), 4&ndash;26.",doi:"10.1037/0096-3445.129.1.4"},
+    {c:"Meuter, R. F. I., &amp; Allport, A. (1999). Bilingual language switching in naming: Asymmetrical costs of language selection. <i>Journal of Memory and Language, 40</i>(1), 25&ndash;40.",doi:"10.1006/jmla.1998.2602"},
+    {c:"Sanbonmatsu, D. M., Strayer, D. L., Medeiros-Ward, N., &amp; Watson, J. M. (2013). Who multi-tasks and why? Multi-tasking ability, perceived multi-tasking ability, impulsivity, and sensation seeking. <i>PLoS ONE, 8</i>(1), e54402.",doi:"10.1371/journal.pone.0054402"},
+    {c:"Leroy, S. (2009). Why is it so hard to do my work? The challenge of attention residue when switching between work tasks. <i>Organizational Behavior and Human Decision Processes, 109</i>(2), 168&ndash;181.",doi:"10.1016/j.obhdp.2009.04.002"},
+    {c:"Arbuthnott, K., &amp; Frank, J. (2000). Trail Making Test, Part B as a measure of executive control: Validation using a set-switching paradigm. <i>Journal of Clinical and Experimental Neuropsychology, 22</i>(4), 518&ndash;528.",doi:"10.1076/1380-3395(200008)22:4;1-0;FT518"},
+    {c:"Schneider, W., &amp; Shiffrin, R. M. (1977). Controlled and automatic human information processing: I. Detection, search, and attention. <i>Psychological Review, 84</i>(1), 1&ndash;66.",doi:"10.1037/0033-295X.84.1.1"},
+    {c:"Pashler, H. (1994). Dual-task interference in simple tasks: Data and theory. <i>Psychological Bulletin, 116</i>(2), 220&ndash;244.",doi:"10.1037/0033-2909.116.2.220"},
+    {c:"Schumacher, E. H., Seymour, T. L., Glass, J. M., Fencsik, D. E., Lauber, E. J., Kieras, D. E., &amp; Meyer, D. E. (2001). Virtually perfect time sharing in dual-task performance: Uncorking the central cognitive bottleneck. <i>Psychological Science, 12</i>(2), 101&ndash;108.",doi:"10.1111/1467-9280.00318"},
+    {c:"Strayer, D. L., &amp; Johnston, W. A. (2001). Driven to distraction: Dual-task studies of simulated driving and conversing on a cellular telephone. <i>Psychological Science, 12</i>(6), 462&ndash;466.",doi:"10.1111/1467-9280.00386"},
+    {c:"Hyman, I. E., Jr., Boss, S. M., Wise, B. M., McKenzie, K. E., &amp; Caggiano, J. M. (2010). Did you see the unicycling clown? Inattentional blindness while walking and talking on a cell phone. <i>Applied Cognitive Psychology, 24</i>(5), 597&ndash;607.",doi:"10.1002/acp.1638"}
+  ];
+  var LIMITS_HTML="<p><b>Two kinds of mental work.</b> Researchers distinguish controlled processing, which needs attention and slows down under load, from automatic processing, which is well learned and hardly affected by load <sup class=\"c\"><a href=\"#src9\">[9]</a></sup>.</p><p><b>A bottleneck for choices.</b> Studies of two quick tasks point to a stubborn bottleneck in choosing actions <sup class=\"c\"><a href=\"#src10\">[10]</a></sup>. That is why two tasks that both need decisions end up taking turns.</p><p><b>Practice can nearly erase the cost.</b> After modest practice, some people did two simple tasks at once with almost no slowdown. One task was seen and answered with a finger, the other heard and answered by voice <sup class=\"c\"><a href=\"#src11\">[11]</a></sup>.</p><p><b>Autopilot breaks when a decision shows up.</b> In a driving simulator, talking on a phone roughly doubled missed traffic signals and slowed reactions. Hands-free phones were no better. Listening to the radio or a book on tape did not cause the problem <sup class=\"c\"><a href=\"#src12\">[12]</a></sup>.</p><p><b>You also stop seeing things.</b> People walking while on a phone were less likely to notice a unicycling clown on their route than people walking alone, in pairs, or with music <sup class=\"c\"><a href=\"#src13\">[13]</a></sup>.</p><p><b>Our rule of thumb.</b> This is our summary, not a finding from one study: one automatic task plus one thinking task usually works, until the automatic one needs a decision. Two thinking tasks means switching.</p>";
   var NUMS=[],i;for(i=1;i<=12;i++)NUMS.push(String(i));
   var WORD="MULTITASKING".split("");
   var BOTH=[];for(i=0;i<12;i++){BOTH.push(NUMS[i]);BOTH.push(WORD[i]);}
   var SEQ=[NUMS,WORD,BOTH];
   var PROMPT=["Tap 1 through 12 in order","Spell MULTITASKING","Alternate: 1, M, 2, U, 3, L ... 12, G"];
   var LETKEYS=["A","G","I","K","L","M","N","S","T","U"];
-  var S={round:0,pos:0,running:false,start:0,last:0,times:[null,null,null],errs:[0,0,0],intr:0,iv:[[],[],[]],tick:null};
+  var S;
+  function fresh(){return {round:0,pos:0,running:false,start:0,last:0,times:[null,null,null],errs:[0,0,0],intr:0,iv:[[],[],[]],tick:null,active:false}}
   function $(id){return document.getElementById(id)}
   function isNum(k){return /^\d+$/.test(k)}
+  function isNew(r){return r&&r.v===2}
+  function val(r){return r.x}
+
+  /* Score one completed run. Leaves out the first tap of each round (it includes moving from the Start button).
+     Ratio of mean tap times, with a small-sample correction so the score doesn't lean high. */
+  function score(iv){
+    var a=iv[0].slice(1).concat(iv[1].slice(1)),b=iv[2].slice(1);
+    var m12=ML.mean(a),m3=ML.mean(b),v=ML.sd(a);v=v*v;
+    var k=1-(v/a.length)/(m12*m12);
+    return {m12:m12,m3:m3,cost:(m3/m12*k-1)*100}}
 
   function keys(el,list){list.forEach(function(k){var b=document.createElement("button");b.className="key";b.textContent=k;b.setAttribute("aria-label",k);
     b.addEventListener("pointerdown",function(e){e.preventDefault();tap(k,b)});
     b.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tap(k,b)}});
     el.appendChild(b)})}
   keys($("nums"),NUMS);keys($("lets"),LETKEYS);
+  document.addEventListener("keydown",function(e){if(!S.running||e.metaKey||e.ctrlKey||e.altKey)return;
+    var k=e.key.toUpperCase();if(e.key.length!==1&&!/^\d+$/.test(e.key))return;
+    var want=SEQ[S.round][S.pos];
+    if(/^\d$/.test(k)&&want&&isNum(want)&&want.length===2){if(!S.digitBuf){S.digitBuf=k;return}k=S.digitBuf+k;S.digitBuf=""}
+    var btn=[].slice.call(document.querySelectorAll(".key")).filter(function(b){return b.textContent===k})[0];
+    if(btn){e.preventDefault();tap(k,btn)}});
 
   function drawTrack(){var t=$("track"),seq=SEQ[Math.min(S.round,2)];t.innerHTML="";
     for(var j=0;j<seq.length;j++){var d=document.createElement("div");var done=j<S.pos;
@@ -218,14 +345,15 @@ details p b{font-weight:500}
       if(seq.length===24){d.style.gridColumn=String((j>>1)+1);d.style.gridRow=String(j%2+1)}
       t.appendChild(d)}}
   function fmt(x){return x==null?"--.-":x.toFixed(1)}
-  function sgn(x){return (x>=0?"+":"−")+Math.abs(x).toFixed(2)+"s"}
+  function pct(x){return (x>=0?"+":"−")+Math.abs(Math.round(x))+"%"}
   function draw(){
     for(var j=0;j<3;j++){$("t"+j).textContent=S.times[j]==null?"--.-":fmt(S.times[j])+"s";
       $("rd"+j).className="rd"+(j===S.round&&S.round<3?" on":"");
-      if(S.times[j]!=null)$("e"+j).textContent=S.errs[j]+(S.errs[j]===1?" miss":" misses")}
+      $("e"+j).textContent=S.times[j]!=null?S.errs[j]+(S.errs[j]===1?" miss":" misses"):["1 to 12","MULTITASKING","Both, alternating"][j]}
     $("prompt").textContent=S.round<3?PROMPT[S.round]:"All three rounds done";
-    $("go").textContent=S.round<3?(S.running?"Go":"Start round "+(S.round+1)):"Done";
-    $("go").disabled=S.running||S.round>2;
+    $("go").textContent=S.round<3?(S.running?"Go":"Start round "+(S.round+1)):"Play again";
+    $("go").disabled=S.running;
+    $("quitbar").hidden=!S.active;
     drawTrack()}
 
   function tap(k,b){
@@ -240,58 +368,86 @@ details p b{font-weight:500}
 
   function finish(){
     S.times[S.round]=(performance.now()-S.start)/1000;S.running=false;clearInterval(S.tick);
-    $("clock").textContent=fmt(S.times[S.round]);S.round++;S.pos=0;draw();
-    if(S.round===3)results()}
+    $("clock").textContent=fmt(S.times[S.round]);S.round++;S.pos=0;
+    if(S.round===3){S.active=false;draw();results()}else draw()}
 
-  function mean(a){if(!a.length)return 0;var s=0;a.forEach(function(x){s+=x});return s/a.length}
-  function plain(t,sum,extra,pct,per,cN,cL){
-    var out=[],ms=Math.round(per*1000);
-    if(extra>0)out.push("<b>The short version.</b> Counting to 12 and spelling MULTITASKING took you "+sum.toFixed(1)+" seconds when you did them one after the other. Round 3 was the exact same 24 taps, just mixed together, and it took "+t[2].toFixed(1)+" seconds. The extra "+extra.toFixed(1)+" seconds is the price of switching back and forth and keeping your place in both. The taps didn't get harder. Only the mixing was new.");
-    else out.push("<b>The short version.</b> This time, mixing the two tasks didn't slow you down. Rounds 1 and 2 took "+sum.toFixed(1)+" seconds together, and round 3 took "+t[2].toFixed(1)+". That's unusual. Practice from the first two rounds can hide the cost, so try another run.");
-    out.push("<b>Reading the bars.</b> Both bars are the same work: 12 numbers and 12 letters. The gray bar is doing them separately. The orange bar is doing them mixed. "+(extra>0?"Your orange bar is "+pct+"% longer. That extra length is the cost of switching, plus tracking where you are in two sequences at once.":"Your bars came out about even this run."));
-    if(extra>0)out.push("<b>Cost per switch, about "+ms+" ms.</b> A millisecond (ms) is a thousandth of a second. Round 3 has 23 switches. Spread evenly, each one cost you about "+ms+" ms, or "+per.toFixed(2)+" seconds. That's too small to notice in the moment, which is why multitasking feels fine while it's slowing you down. You only see it when the stopwatch adds it up.");
-    out.push(S.intr>0?"<b>Wrong-sequence taps, "+S.intr+".</b> "+(S.intr===1?"Once,":S.intr+" times,")+" you tapped the next item from the other sequence, like tapping 4 when L was due. That's the task you just left still running in the background and pulling at you. Researchers call it task-set inertia.":"<b>Wrong-sequence taps, 0.</b> You never slipped into the other sequence this run. Most people do at least once, tapping the next number when a letter was due, because the task they just left is still pulling at them.");
-    var d=cN-cL;
-    out.push("<b>Back to numbers vs into letters.</b> Counting is a much stronger habit than spelling. To spell, your brain has to hold counting down. Switching back to counting means lifting that hold, which takes extra time. So research predicts that switching back to the stronger habit costs more. "+(Math.abs(d)<0.05?"This run, both directions cost you about the same.":(d>0?"Your results match: switching back to numbers slowed you more than switching into letters.":"Your results went the other way this run. It's a small effect, so it shows up more clearly over several runs.")));
-    out.push("<b>Why it matters.</b> This test uses two tasks that take almost no thought, and it still adds up. Real work, like answering a message in the middle of a report, takes much longer to switch back from. The fixes are simple: group similar work together, finish one thing before starting the next when you can, and when you must switch, jot down where you stopped so getting back in is faster.");
-    return out.map(function(x){return "<p>"+x+"</p>"}).join("");
-  }
+  function quit(){clearInterval(S.tick);S=fresh();$("clock").textContent="0.0";$("msg").textContent="Round stopped. Nothing was saved.";draw()}
+  ML.holdToQuit($("quit"),quit);
+
   function results(){
-    var t=S.times,sum=t[0]+t[1],extra=t[2]-sum,pct=Math.round(extra/sum*100),per=extra/23;
-    var b1=mean(S.iv[0].slice(1)),b2=mean(S.iv[1].slice(1));
+    var sc=score(S.iv),t=S.times;
+    var b1=ML.mean(S.iv[0].slice(1)),b2=ML.mean(S.iv[1].slice(1));
     var toN=[],toL=[];S.iv[2].forEach(function(x,j){if(j===0)return;(j%2===0?toN:toL).push(x)});
-    var cN=mean(toN)-b1,cL=mean(toL)-b2;
-    $("verdict").textContent=extra>0?("Switching cost you "+extra.toFixed(1)+" seconds, "+pct+"% more time for the same 24 taps."):("No switching cost this run. Round 3 was "+Math.abs(extra).toFixed(1)+"s faster. Try again, one run is noisy.");
-    $("sumT").textContent=fmt(sum)+"s";$("r3T").textContent=fmt(t[2])+"s";
-    $("perSw").textContent=sgn(per);$("intr").textContent=String(S.intr);
-    $("cN").textContent=sgn(cN)+"/tap";$("cL").textContent=sgn(cL)+"/tap";
-    var diff=cN-cL;
-    $("asym").textContent=Math.abs(diff)<0.05?"Switching back to numbers and into letters cost about the same this run.":
-      (diff>0?"Switching back to numbers cost more than switching into letters. That fits the research: the stronger habit gets pushed down harder, so coming back to it is slower.":
-       "Switching into letters cost more than switching back to numbers this run. Research predicts the reverse on average, so see if it holds over several runs.");
-    $("plain").innerHTML=plain(t,sum,extra,pct,per,cN,cL);
-    var mx=Math.max(sum,t[2]);$("results").hidden=false;
-    requestAnimationFrame(function(){requestAnimationFrame(function(){$("barA").style.width=(sum/mx*100)+"%";$("barB").style.width=(t[2]/mx*100)+"%"})});
-    save({d:Date.now(),s:sum,r:t[2],x:pct,w:S.intr});
+    var cN=ML.mean(toN)-b1,cL=ML.mean(toL)-b2;
+    var rec={d:Date.now(),v:2,x:Math.round(sc.cost),m12:+sc.m12.toFixed(4),m3:+sc.m3.toFixed(4),s:+(t[0]+t[1]).toFixed(2),r:+t[2].toFixed(2),w:S.intr,cn:+cN.toFixed(4),cl:+cL.toFixed(4)};
+    var runs=ML.load(KEY);runs.unshift(rec);runs=runs.slice(0,KEEP);ML.put(KEY,runs);
+    var st=ML.settle(runs,N,val,isNew);
+    $("verdict").textContent=sc.cost>5?"Switching made each tap "+Math.round(sc.cost)+"% slower.":(sc.cost>-5?"Switching barely slowed you this round.":"You were faster when mixing this round, which is unusual.");
+    $("sepT").textContent=Math.round(sc.m12*1000)+" ms";$("mixT").textContent=Math.round(sc.m3*1000)+" ms";
+    $("cost").textContent=pct(sc.cost);$("perTap").textContent=(sc.m3>=sc.m12?"+":"−")+Math.abs(Math.round((sc.m3-sc.m12)*1000))+" ms";
+    $("intr").textContent=String(S.intr);
+    $("prog").textContent=st.settled!=null?"Settled":Math.min(st.n,N)+" of "+N;
+    $("progSub").textContent=st.settled!=null?"Settled score: "+pct(st.settled):ML.plural(st.need,"more round")+" to go";
+    $("plain").innerHTML=plain(sc,cN,cL,st);
+    var mx=Math.max(sc.m12,sc.m3);$("results").hidden=false;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){$("barA").style.width=(sc.m12/mx*100)+"%";$("barB").style.width=(sc.m3/mx*100)+"%"})});
+    hist(runs);status();
     $("results").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
 
-  function load(){try{return JSON.parse(localStorage.getItem("switchcost.runs")||"[]")}catch(e){return []}}
-  function save(r){var a=load();a.unshift(r);a=a.slice(0,20);try{localStorage.setItem("switchcost.runs",JSON.stringify(a))}catch(e){}hist(a)}
+  function plain(sc,cN,cL,st){
+    var out=[],c=Math.round(sc.cost),ms=Math.round((sc.m3-sc.m12)*1000);
+    out.push(c>5?"<b>The short version.</b> When you did the tasks separately, each tap took you about "+Math.round(sc.m12*1000)+" ms. When you mixed them, each tap took about "+Math.round(sc.m3*1000)+" ms. That's "+c+"% slower for the same kind of tap. A ms is a thousandth of a second. The taps didn't get harder. Only the switching was new."
+      :"<b>The short version.</b> Your taps took about the same time mixed ("+Math.round(sc.m3*1000)+" ms) as separate ("+Math.round(sc.m12*1000)+" ms). That's uncommon. One round is noisy, so see whether it holds over more rounds.");
+    out.push("<b>Reading the bars.</b> Both bars show your average time per tap. The gray bar is the tasks done one at a time. The orange bar is the tasks mixed. The difference is the switching cost.");
+    out.push("<b>How much to trust one round.</b> Luck alone can move a single round about "+LUCK+" points up or down. So treat this round as a rough read. Your settled score, which pools "+N+" rounds, is the one to trust.");
+    if(c>5)out.push("<b>Why you don't feel it.</b> "+Math.abs(ms)+" ms per tap is too small to notice. Over 23 switches it adds up to about "+(Math.abs(ms)*23/1000).toFixed(1)+" seconds, which only a stopwatch shows.");
+    out.push(S.intr>0?"<b>Wrong-sequence taps, "+S.intr+".</b> "+(S.intr===1?"Once,":S.intr+" times,")+" you tapped the next item from the other sequence, like 4 when L was due. That's the task you just left still pulling at you.":"<b>Wrong-sequence taps, 0.</b> You never slipped into the other sequence. Most people do at least once.");
+    var d=cN-cL;
+    out.push("<b>Back to numbers vs into letters.</b> Counting is a stronger habit than spelling. Research on similar tasks found that switching back to the stronger habit costs more. "+(Math.abs(d)<0.03?"This round, both directions cost you about the same.":(d>0?"Your round matched that: switching back to numbers slowed you more.":"Your round went the other way. One round can't settle this, so it's tracked across rounds on the start page.")));
+    return out.map(function(x){return "<p>"+x+"</p>"}).join("")}
+
+  function summaryText(st){
+    if(st.settled!=null)return "Mixing two simple tasks makes each of your taps about "+Math.round(st.settled)+"% slower (settled over your last "+N+" rounds).";
+    if(st.n)return "Mixing two simple tasks has made your taps about "+Math.round(st.avg)+"% slower so far. "+ML.plural(st.need,"more round")+" before this score is reliable.";
+    return "Not played yet with the current scoring."}
+
+  function status(){
+    var runs=ML.load(KEY),st=ML.settle(runs,N,val,isNew),old=runs.filter(function(r){return !isNew(r)}).length,el=$("status"),h="";
+    if(st.settled==null){
+      h+='<h2>Still settling: '+ML.plural(st.need,"more round")+' before your score is reliable</h2>';
+      h+='<div class="ml-meter"><i style="width:'+(st.n/N*100)+'%"></i></div>';
+      h+='<p>One round can swing about '+LUCK+' points either way from luck alone. Pooling '+N+' rounds narrows that to about ±'+MARGIN+' points.</p>';
+      if(st.n)h+='<p><b>Average so far:</b> each tap about '+Math.round(st.avg)+'% slower when mixed, over '+ML.plural(st.n,"round")+'. This is an early read.</p>';
+    }else{
+      var s=Math.round(st.settled),spread=st.spread;
+      h+='<h2>What your scores mean so far</h2><p><span class="ml-pill ok">Settled</span> <span class="ml-pill">'+ML.plural(st.n,"round")+' played</span></p>';
+      h+='<p><b>Your settled score: '+pct(st.settled)+'.</b> When you have to switch between two simple tasks, each tap takes you about '+s+'% longer than when you do one task at a time. This pools your last '+N+' rounds, so it should be within about ±'+MARGIN+' points of your true level.</p>';
+      h+='<p><b>Compared with adults.</b> No published adult norm exists for this exact game, so there\'s no fair comparison to make. The science section explains why.</p>';
+      h+='<p><b>Consistency.</b> Your last '+N+' rounds varied by about ±'+ML.plural(Math.round(spread),'point')+' around your average. '+(spread<ROUND_SD*0.75?'That\'s steadier than luck alone usually allows, so you play very consistently.':(spread<=ROUND_SD*1.25?'That\'s about what luck alone produces, so you play steadily.':'That\'s more than luck alone explains, so how you play changes from round to round.'))+'</p>';
+      if(st.firstN!=null){var ch=st.latestN-st.firstN;h+='<p><b>Change over time.</b> Your first '+N+' rounds averaged '+pct(st.firstN)+'. Your latest '+N+' average '+pct(st.latestN)+'. '+(Math.abs(ch)<MARGIN?'That\'s within the margin of luck, so no clear change.':(ch<0?'Your cost has dropped, likely because the sequences are now well practiced.':'Your cost has grown. Tiredness or distraction can do this.'))+'</p>'}
+      else h+='<p><b>Change over time.</b> After '+(2*N)+' rounds, this will compare your first '+N+' with your latest '+N+'. '+ML.plural(2*N-st.n,"more round")+' to go.</p>';
+      var rec=runs.filter(isNew).slice(0,N),dd=ML.mean(rec.map(function(r){return (r.cn||0)-(r.cl||0)})),wr=ML.mean(rec.map(function(r){return r.w||0}));
+      h+='<p><b>Your switching pattern.</b> '+(Math.abs(dd)<0.02?'Switching back to numbers and switching into letters cost you about the same.':(dd>0?'Switching back to numbers costs you about '+Math.round(dd*1000)+' ms more per tap than switching into letters. That matches the research: the stronger habit is harder to return to.':'Switching into letters costs you more than switching back to numbers. That\'s the opposite of the usual finding.'))+' You average '+wr.toFixed(1)+' wrong-sequence taps per round.</p>'}
+    h+='<svg class="ml-trend" id="trend" viewBox="0 0 480 150" role="img" aria-label="Your switching cost each round"></svg>';
+    if(old)h+='<p class="note">'+ML.plural(old,"earlier round")+' used an older formula that read about 20 points too low. They stay in your history but aren\'t counted here.</p>';
+    h+='<div id="resetWrap"></div>';
+    el.innerHTML=h;
+    ML.trend($("trend"),st.vals,N,function(v){return Math.round(v)+"%"},"var(--let)");
+    ML.resetLink($("resetWrap"),[KEY,SUMKEY],"Reset my scores",function(){status();hist([]);$("results").hidden=true});
+    ML.saveSummary("mm",{settled:st.settled!=null,n:st.n,need:st.need,N:N,score:st.settled!=null?st.settled:st.avg,norm:null,t:summaryText(st)})}
+
   function hist(a){if(!a.length){$("histWrap").hidden=true;return}$("histWrap").hidden=false;
-    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d);
-      return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+"</td><td>"+r.s.toFixed(1)+"</td><td>"+r.r.toFixed(1)+"</td><td>"+(r.x>0?"+":"")+r.x+"%</td><td>"+r.w+"</td></tr>"}).join("");
-    var avg=Math.round(mean(a.map(function(r){return r.x})));
-    $("histAvg").textContent=a.length>1?("Average extra time across your last "+a.length+" runs: "+(avg>0?"+":"")+avg+"%."):"Play a few more runs to see your average."}
+    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d),o=!isNew(r);
+      return "<tr"+(o?' class="old"':'')+"><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+(o?" (old)":"")+"</td><td>"+(r.m12?Math.round(r.m12*1000)+"ms":r.s.toFixed(1)+"s")+"</td><td>"+(r.m3?Math.round(r.m3*1000)+"ms":r.r.toFixed(1)+"s")+"</td><td>"+pct(r.x)+"</td><td>"+r.w+"</td></tr>"}).join("");
+    $("histNote").textContent=a.some(function(r){return !isNew(r)})?"Rows marked old used the earlier formula, which timed whole rounds.":""}
 
-  function reset(){clearInterval(S.tick);S={round:0,pos:0,running:false,start:0,last:0,times:[null,null,null],errs:[0,0,0],intr:0,iv:[[],[],[]],tick:null};
-    $("clock").textContent="0.0";$("msg").textContent="";$("results").hidden=true;$("barA").style.width="0";$("barB").style.width="0";
-    for(var j=0;j<3;j++)$("e"+j).textContent=["1 to 12","MULTITASKING","Both, alternating"][j];draw()}
-
-  $("go").addEventListener("click",function(){if(S.running||S.round>2)return;$("msg").textContent="";S.pos=0;S.running=true;
+  function reset(){if(S&&S.tick)clearInterval(S.tick);S=fresh();$("clock").textContent="0.0";$("msg").textContent="";$("results").hidden=true;$("barA").style.width="0";$("barB").style.width="0";draw()}
+  $("go").addEventListener("click",function(){if(S.running)return;if(S.round>2){reset();return}$("msg").textContent="";S.pos=0;S.running=true;S.active=true;
     S.start=S.last=performance.now();S.tick=setInterval(function(){$("clock").textContent=fmt((performance.now()-S.start)/1000)},100);draw()});
-  $("restart").addEventListener("click",reset);
   $("again").addEventListener("click",function(){reset();window.scrollTo({top:0})});
-  hist(load());draw();
+  ML.sources($("sources"),SOURCES);$("limits").innerHTML=LIMITS_HTML;if(!LIMITS_HTML){$("limitsH").hidden=true}
+  [].forEach.call(document.querySelectorAll(".luck"),function(e){e.textContent="±"+LUCK});
+  reset();hist(ML.load(KEY));status();
 })();
 </script>
 
